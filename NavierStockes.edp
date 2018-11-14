@@ -60,7 +60,7 @@ border b4(t=1,0){x=0;y=height*t;label=1;}
 plot(b1(100)+b2(50)+b3(100)+b4(50)+C(100));
 int n=5;
 mesh Th=buildmesh(b1(10*n)+b2(5*n)+b3(10*n)+b4(5*n)+C(20*n));
-//plot(Th);
+plot(Th);
 //plot(Th);
 fespace Vh1(Th,P1);
 fespace Vh2(Th,P2);

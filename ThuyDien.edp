@@ -55,7 +55,7 @@ border C(t=0,1)
 } 
 int n=5;
 mesh Th=buildmesh(C(-20*n));
-//plot(Th);
+plot(Th);
 //plot(Th);
 fespace Vh1(Th,P1);
 fespace Vh2(Th,P2);
@@ -70,6 +70,8 @@ macro Streamlines()
 		+ on(2,psi=0);
        
 } //EOM
+func fy=0;
+func fx=0;
 problem NS (u1,u2,p,v1,v2,q) =
 int2d(Th)(
 	(u1*v1 + u2*v2)/dt+ nu * ( dx(u1)*dx(v1) + dy(u1)*dy(v1)+ dx(u2)*dx(v2) + dy(u2)*dy(v2))
@@ -77,6 +79,7 @@ int2d(Th)(
 	- p*dx(v1) - p*dy(v2)
 	- dx(u1)*q - dy(u2)*q
 )
+- int2d(Th) (fx * v1 + fy * v2)
 + int2d(Th) ( 
 	- convect([up1,up2],-dt,up1)*v1/dt 
 	- convect([up1,up2],-dt,up2)*v2/dt
@@ -89,9 +92,9 @@ for(int i=0;i<2000;i++){
 	up1=u1;
 	up2=u2;
 	NS;
-//	plot([u1,u2]);
-	Streamlines;
+	plot([u1,u2]);
+//	Streamlines;
 //	plot(p);
-	plot(psi);
+//	plot(psi);
 
 }
