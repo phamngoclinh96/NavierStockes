@@ -1,0 +1,97 @@
+
+/*border c1(t=5,-5){x=-10;y=t;label=1;}
+border c2(t=-10,10){x=t;y=-5;label=2;}
+border c3(t=-5,5){x=10;y=t;}
+border c4(t=10,-10){x=t;y=5;label=2;}
+border c5(t=-2,2){x=-4;y=t;label=2;}
+border c6(t=-4,4){x=t;y=2;label=2;}
+border c7(t=2,-2){x=4;y=t;}
+border c8(t=4,-4){x=t;y=-2;label=2;}
+
+int n=1;
+//mesh Th= buildmesh(a0(5*n)+a1(20*n)+a2(10*n)+a3(20*n)+a4(10*n)+a5(50*n)+a6(30*n)+a7(150*n));
+
+mesh Th = buildmesh(c1(10*n)+c2(20*n)+c3(10*n)+c4(20*n)+c5(5*n)+c6(10*n)+c7(5*n)+c8(10*n));
+*/
+load "isoline"
+load "ppm2rnm"
+real[int,int] Curves(3,1);
+int[int] be(1);
+int nc;// nb of curve 
+int width,height;
+{
+string rio; 
+rio="test.pgm";
+real[int,int] ff1(rio); // read  image and set to an rect. array 
+//  remark (0,0) is the upper, left corner.
+int nx = ff1.n, ny=ff1.m; 
+width = nx;
+height = ny;
+// build a cartesain mesh such that the origne is at the right place.
+mesh Th=square(nx-1,ny-1,[(nx-1)*(x),(ny-1)*(1-y)]); 
+mesh Tf=Th;
+// warning  the numbering is of the vertices (x,y) is 
+// given by $  i = x/nx + nx* y/ny $
+fespace Vh(Th,P1);
+
+Vh f1; f1[]=ff1;
+
+real vmax = f1[].max ;
+real vmin = f1[].min ;
+real vm = (vmin+vmax)/2;
+verbosity=3;
+  nc=isoline(Th,f1,iso=vm,close=0,Curves,beginend=be,smoothing=.5,ratio=0.1); 
+  verbosity=1; 
+
+}
+cout<<"be = "<<be(1);
+
+int ic0=be(0), ic1=be(1)-1;
+
+border C(t=0,1) 
+{    
+  P=Curve(Curves,0,be(1)-1,t);
+  label=1+ (y<370) + (x>450);	
+} 
+int n=5;
+mesh Th=buildmesh(C(-20*n));
+//plot(Th);
+//plot(Th);
+fespace Vh1(Th,P1);
+fespace Vh2(Th,P2);
+real nu = 0.0025, dt = 0.01; // Reynolds=200
+Vh2 u1,u2,v1,v2,up1,up2,phi,psi;
+Vh1 p,q;
+macro Streamlines()
+{
+    solve strl(psi, phi) =
+        int2d(Th)(dx(psi) * dx(phi) + dy(psi) * dy(phi))
+        + int2d(Th)(-phi * (dy(u1) - dx(u2)))
+		+ on(2,psi=0);
+       
+} //EOM
+problem NS (u1,u2,p,v1,v2,q) =
+int2d(Th)(
+	(u1*v1 + u2*v2)/dt+ nu * ( dx(u1)*dx(v1) + dy(u1)*dy(v1)+ dx(u2)*dx(v2) + dy(u2)*dy(v2))
+	- p*q*(0.000001)
+	- p*dx(v1) - p*dy(v2)
+	- dx(u1)*q - dy(u2)*q
+)
++ int2d(Th) ( 
+	- convect([up1,up2],-dt,up1)*v1/dt 
+	- convect([up1,up2],-dt,up2)*v2/dt
+)
++ on(1,u1=0,u2=-(50-abs(x-200))) +on(2,u1=0,u2=0);// +on(4,u1=10,u2=0);
+
+//+ on(2,4,u1=0,u2=0)
+//+ on(3,p=0,u2=0);
+for(int i=0;i<2000;i++){
+	up1=u1;
+	up2=u2;
+	NS;
+//	plot([u1,u2]);
+	Streamlines;
+//	plot(p);
+	plot(psi);
+
+}
