@@ -51,7 +51,7 @@ int ic0=be(0), ic1=be(1)-1;
 border C(t=0,1) 
 {    
   P=Curve(Curves,0,be(1)-1,t);
-  label=1+ (y<370) + (x>450);	
+  label=1+ (y<320) + (y<20);	
 } 
 int n=5;
 mesh Th=buildmesh(C(-20*n));
@@ -84,7 +84,7 @@ int2d(Th)(
 	- convect([up1,up2],-dt,up1)*v1/dt 
 	- convect([up1,up2],-dt,up2)*v2/dt
 )
-+ on(1,u1=0,u2=-(50-abs(x-200))) +on(2,u1=0,u2=0);// +on(4,u1=10,u2=0);
++ on(1,u1=0,u2=(50-abs(x-200))) +on(2,u1=0,u2=0);// +on(4,u1=10,u2=0);
 
 //+ on(2,4,u1=0,u2=0)
 //+ on(3,p=0,u2=0);
@@ -92,7 +92,7 @@ for(int i=0;i<2000;i++){
 	up1=u1;
 	up2=u2;
 	NS;
-	plot([u1,u2]);
+//	plot([u1,u2]);
 //	Streamlines;
 //	plot(p);
 //	plot(psi);

@@ -1,4 +1,4 @@
-
+load "medit"
 /*border c1(t=5,-5){x=-10;y=t;label=1;}
 border c2(t=-10,10){x=t;y=-5;label=2;}
 border c3(t=-5,5){x=10;y=t;}
@@ -21,7 +21,7 @@ int nc;// nb of curve
 int width,height;
 {
 string rio; 
-rio="oto.pgm";
+rio="oto_tai.pgm";
 real[int,int] ff1(rio); // read  image and set to an rect. array 
 //  remark (0,0) is the upper, left corner.
 int nx = ff1.n, ny=ff1.m; 
@@ -64,7 +64,8 @@ plot(Th);
 //plot(Th);
 fespace Vh1(Th,P1);
 fespace Vh2(Th,P2);
-real nu = 0.0025, dt = 0.01; // Reynolds=200
+real nu = 1./10, dt = 0.01; // Reynolds=200
+string folder = "Oto_10";
 Vh2 u1,u2,v1,v2,up1,up2,phi,psi;
 Vh1 p,q;
 macro Streamlines()
@@ -90,13 +91,14 @@ int2d(Th)(
 
 //+ on(2,4,u1=0,u2=0)
 //+ on(3,p=0,u2=0);
-for(int i=0;i<2000;i++){
+for(int i=0;i<1000;i++){
 	up1=u1;
 	up2=u2;
 	NS;
-	plot([u1,u2]);
-//	Streamlines;
+//	plot([u1,u2]);
+	Streamlines;
 	//plot(p);
-	//plot(psi);
-
+	plot(psi);
+	savesol("Oto/Th." +string(i)+".sol",Th,psi);
+	savemesh(Th,"Oto/Th."+string(i)+".mesh");
 }
